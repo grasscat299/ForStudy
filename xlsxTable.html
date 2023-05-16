@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+		<meta charset="UTF-8">
+		<title>XLSXファイルを読み込んでテーブルに表示するサンプル</title>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css">
+		<script src="fileTitle.js"></script>
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+  	</head>
+  	<body>
+		<div class="container my-4">
+			<select class="form-select" id="file-select"></select>
+			<select class="form-select" id="sheet-select"></select>
+			<table class="table">
+	  			<tbody id="table-body"></tbody>
+			</table>
+		</div>
+
+		<!-- 必要なライブラリを読み込みます -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.8/xlsx.full.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+		<!-- XLSXファイルを読み込んでテーブルに表示するJavaScriptを読み込みます -->
+		<script src="script.js"></script>
+  	</body>
+</html>
