@@ -1,4 +1,6 @@
-# ForStudy
+
+## WebSite:[ExcelWeb版](https://grasscat299.github.io/ForStudy/)
+
 管理者の皆さんへ。
 ***まずはアカウントを作って、私に教えてください!***
 
