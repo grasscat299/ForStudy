@@ -24,7 +24,10 @@ fileTitle = [
 
 ```javascript:fileTitle.js
 fileTitle = [
-  "book.xlsx",
-  "book2.xlsx",
-  "地歴考査対策用プリント.xlsx"
+  "地歴考査対策用プリント.xlsx",
+  "book1.xlsx",
+  "book2.xlsx"
 ]
+```
+
+※順番はそのままサイトの選択ボックス順に反映されます。
