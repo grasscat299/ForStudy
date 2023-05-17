@@ -1,11 +1,11 @@
-function buildTable(table) {
+function buildTable(sheet) {
   var tableBody = $('#table-body');
 	tableBody.empty();
-  for (var i = 0; i < table.length; i++) {
+  for (var i = 0; i < sheet.length; i++) {
     var row = $('<tr>');
-    for (var j = 0; j < table[i].length; j++) {
-      if(j === 0) row.append( $("<th>").text(table[i][j]));
-			else row.append($('<td>').text(table[i][j]));
+    for (var j = 0; j < sheet[i].length; j++) {
+      if(j === 0) row.append( $("<th>").text(sheet[i][j]));
+			else row.append($('<td>').text(sheet[i][j]));
     }
     tableBody.append(row);
   }
@@ -25,12 +25,14 @@ function loadFile(event) {
   reader.readAsArrayBuffer(event.target.files[0]);
 }
 */
-
+var table;
 function loadSheet() {
   var sheetSelect = $('#sheet-select');
   var sheetName = sheetSelect.val();
   var worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+  table = worksheet;
   buildTable(worksheet);
+  questionReset();
 }
 
 $(document).ready(function() {
@@ -60,21 +62,6 @@ $(document).ready(function() {
 
 function getFile(){
 	var fileName = $('#file-select').val();
-  /*
-  $.ajax({
-    url: 'data/' + fileName,
-    type: 'GET',
-    dataType: 'binary',
-    processData: false,
-    responseType: 'arraybuffer',
-    success: function(response, status, xhr) {
-      loadWorkbook(response);
-    },
-    error: function(xhr, status, error) {
-      console.log('Error: ' + error);
-    }
-  });
-  */
   var xhr = new XMLHttpRequest();
   xhr.open('GET', 'data/'+fileName, true);
   xhr.responseType = 'arraybuffer';
@@ -100,4 +87,62 @@ $(document).ready(function(){
 		fileSelect.append(option);
 	})
 	getFile();	
+});
+
+
+//QuestionTabの仕様
+
+
+var index = 0;
+var question, answer;
+
+function questionReset(){
+  question = $("#question-text");
+  answer = $("#answer-text");
+  question.empty();
+  answer.empty();
+  showQuestion();
+  index = 0;
+}
+
+function showQuestion() {
+  question.text(table[index][1]);
+  answer.text("---");
+}
+
+function showAnswer() {
+  answer.text(table[index][2]);
+}
+
+function nextQuestion() {
+  index++;
+  if (index >= table.length) {
+    index = 0;
+  }
+  showQuestion();
+}
+
+function prevQuestion() {
+  index--;
+  if (index < 0) {
+    index = table.length - 1;
+  }
+  showQuestion();
+  showAnswer();
+}
+
+$("#next-btn").on("click", function() {
+  if (answer.text() === "---") {
+    showAnswer();
+  } else {
+    nextQuestion();
+  }
+});
+
+$("#back-btn").on("click", function() {
+  if (answer.text() === "---") {
+    prevQuestion();
+  } else {
+    showQuestion();
+  }
 });
