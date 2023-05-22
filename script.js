@@ -4,27 +4,13 @@ function buildTable(sheet) {
   for (var i = 0; i < sheet.length; i++) {
     var row = $('<tr>');
     for (var j = 0; j < sheet[i].length; j++) {
-      if(j === 0) row.append( $("<th>").text(sheet[i][j]));
-			else row.append($('<td>').text(sheet[i][j]));
+      if(j === 0) row.append( $("<th>").text(i+1));
+			row.append($('<td>').text(sheet[i][j]));
     }
     tableBody.append(row);
   }
 }
 
-/*
-function loadFile(event) {
-  var reader = new FileReader();
-  reader.onload = function(event) {
-    var data = new Uint8Array(event.target.result);
-    var workbook = XLSX.read(data, { type: 'array' });
-    var sheetName = workbook.SheetNames[0];
-    var worksheet = workbook.Sheets[sheetName];
-    var table = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-	  buildTable(table);
-  };
-  reader.readAsArrayBuffer(event.target.files[0]);
-}
-*/
 var table;
 function loadSheet() {
   var sheetSelect = $('#sheet-select');
@@ -36,13 +22,36 @@ function loadSheet() {
 }
 
 $(document).ready(function() {
-  $('#file-input').change(loadWorkbook);
-	$("#sheet-select").change( loadSheet);
+  //load時
+	var fileSelect = $("#file-select");
+  fileSelect.empty();
+	fileTitle.forEach(function(name, index){
+		var option = $("<option>").text(name).val(name);
+		if (index === 0) option.attr( "selected", "selected");
+		fileSelect.append(option);
+	})
+	getFile();	
+
+  //sheet
+	$("#sheet-select").change(function(){
+    if(dataType = "xlsx") loadSheet(); 
+  });
+
+  //file
+  $('#file-select').change(getFile);
 });
 
 var workbook;
 function loadWorkbook(data) {
-	//input要素が作成され、ファイルが選択されたときに、loadWorkbook関数が呼び出され、ファイルが"リーダーオブジェクトに送信"されます
+  if( dataType == "json" ){
+    let tableelm = JSON.parse(data);
+    table = tableelm.data;
+    $("#sheet-select").empty();
+    $('#sheet-select').append($('<option>').text("---"));
+    buildTable(table);
+    questionReset();
+   
+  } else if(dataType = "xlsx"){
     workbook = XLSX.read(data, { type: 'array' });
     var sheetSelect = $('#sheet-select');
     sheetSelect.empty();
@@ -52,14 +61,10 @@ function loadWorkbook(data) {
       sheetSelect.append(option);
     });
     loadSheet();
+  }
 }
 
-
-$(document).ready(function() {
-  $('#file-select').change(getFile);
-});
-
-
+var dataType = "xlsx";
 function getFile(){
 	var fileName = $('#file-select').val();
   var xhr = new XMLHttpRequest();
@@ -67,9 +72,18 @@ function getFile(){
   xhr.responseType = 'arraybuffer';
   xhr.onload = function(e) {
     if (xhr.status === 200) {
-      // リクエストが成功した場合
-      loadWorkbook(xhr.response);
-      // Excelファイルのデータを使用した処理
+      var contentType = xhr.getResponseHeader('Content-Type');
+      let res;
+      if (contentType === 'application/json') {
+        dataType = "json";
+        var uint8Array = new Uint8Array(xhr.response);
+        var textDecoder = new TextDecoder();
+        res = textDecoder.decode(uint8Array);
+      } else if (contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        dataType = "xlsx";
+        res = xhr.response;
+      }
+      loadWorkbook(res);
     } else {
       // リクエストが失敗した場合
       console.log('Failed to load file: ' + xhr.statusText);
@@ -77,17 +91,6 @@ function getFile(){
   };
   xhr.send();
 }
-
-$(document).ready(function(){
-	var fileSelect = $("#file-select");
-  fileSelect.empty();
-	fileTitle.forEach(function(name, index){
-		var option = $("<option>").text(name).val(name);
-		if (index === 0) option.attr( "selected", "selected");
-		fileSelect.append(option);
-	})
-	getFile();	
-});
 
 
 //QuestionTabの仕様
@@ -106,12 +109,12 @@ function questionReset(){
 }
 
 function showQuestion() {
-  question.text(table[index][1]);
+  question.text(table[index][0]);
   answer.text("---");
 }
 
 function showAnswer() {
-  answer.text(table[index][2]);
+  answer.text(table[index][1]);
 }
 
 function nextQuestion() {
